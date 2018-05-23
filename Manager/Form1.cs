@@ -17,14 +17,16 @@ using System.Net;
 using Protocols;
 using System.Threading;
 using System.Net.NetworkInformation;
+using System.Collections.ObjectModel;
 
 namespace Manager
 {
     public partial class Form1 : Form
     {
         private Thread StartThread;
+        private Thread UpdateThread;
 
-        public List<string> Clients = new List<string>();
+        ObservableCollection<Packet> Proccess = new ObservableCollection<Packet>();
 
         public Form1()
         {
@@ -34,44 +36,132 @@ namespace Manager
             {
                 Name = "pictureBox",
                 Size = new Size(282, 179),
-                Image = Image.FromFile(@"C:\Ptoject\Manager\Manager\mono.jpg"),
+                
+                Image = Image.FromFile("mono.jpg"),
 
             };
             panelcard.Controls.Add(picture);
 
             cbCard.SelectedIndex = 0;
+
+            var host = Dns.GetHostEntry(Dns.GetHostName());
+            foreach (var ip in host.AddressList)
+            {
+                if (ip.AddressFamily == AddressFamily.InterNetwork)
+                {
+                    tbMyIp.Text = ip.ToString();
+                }
+            }
+
         }
 
         public void StartWork()
         {
-                StartThread = new Thread(FindClients);
-                StartThread.IsBackground = true;
-                StartThread.Name = "FindClients";
-                StartThread.Start();
+            StartThread = new Thread(FindClients);
+            StartThread.IsBackground = true;
+            StartThread.Name = "FindClients";
+            StartThread.Start();
+        }
+
+        public void UpdateProgress()
+        {
+            UpdateThread = new Thread(UpdateProg);
+            UpdateThread.IsBackground = true;
+            UpdateThread.Name = "UpdateProgress";
+            UpdateThread.Start();
+        }
+
+        private TcpListener listener;
+
+        public Packet Packet { get;  set; }
+
+        protected void UpdateProg()
+        {
+            try
+            {
+                IPAddress ipAddress = IPAddress.Parse(tbMyIp.Text);
+
+                listener = new TcpListener(ipAddress, 4567);
+
+                listener.Start();
+
+                while (true)
+                {
+                    Socket clientSocket = listener.AcceptSocket();
+
+                    byte[] buffer = new byte[65000];
+
+                    int res = clientSocket.Receive(buffer);
+
+                    if (res > 1)
+                    {
+                        byte[] buf = new byte[res];
+
+                        Array.Copy(buffer, buf, res);
+
+                        Packet = FromByteArray<Packet>(buf);
+
+                        foreach (var Paks in Proccess)
+                        {
+                            if (Paks.IPAdress.Equals(Packet.IPAdress))
+                            {
+                                Paks.CardType = Packet.CardType;
+                                Paks.CountFiles = Packet.CountFiles;
+                                Paks.FileInfo = Packet.FileInfo;
+                            }
+                        }
+                    }
+
+                    clientSocket.Close();
+                }
+            }
+            catch (SocketException ex)
+            {
+                //Trace.TraceError(String.Format("QuoteServer {0}", ex.Message));
+            }
         }
 
         private void FindClients()
         {
             try
             {
-                    IPAddress ipAddress = IPAddress.Parse(tbMyIp.Text);
+                IPAddress ipAddress = IPAddress.Parse(tbMyIp.Text);
 
-                    TcpListener listener = new TcpListener(ipAddress, 4568);
+                listener = new TcpListener(ipAddress, 4568);
 
-                    listener.Start();
+                listener.Start();
 
-                    TcpClient clientSocket = listener.AcceptTcpClient();
+                while (true)
+                {
+                    Socket clientSocket = listener.AcceptSocket();
 
-                    string point = ((IPEndPoint)clientSocket.Client.RemoteEndPoint).Address.ToString();
+                    string point = ((IPEndPoint)clientSocket.RemoteEndPoint).Address.ToString();
 
-                    if (!Clients.Contains(point))
-                        Clients.Add(point);
+                    if (Proccess.Count == 0)
+                    {
+                        Packet pak = new Packet
+                        {
+                            CardType = "",
+                            CVV = chbCVV.Checked,
+                            MSOffice = cbOffice.Checked,
+                            Rar = cbRar.Checked,
+                            Directory = tbDirectory.Text,
+                            IPAdress = ""
+                        };
+                        Proccess.Add(pak);
+                    }
+
+                    foreach (var item in Proccess)
+                    {
+                        if (!item.IPAdress.Equals(point))
+                            item.IPAdress = point;
+                    }
 
                     clientSocket.Close();
 
-                foreach (var item in Clients)
-                {
-                    this.Invoke((MethodInvoker)(() => lbComps.Items.Add(item)));
+                    Proccess.CollectionChanged += Proccess_CollectionChanged;
+
+                    //Thread.Sleep(5000);
                 }
             }
             catch (SocketException ex)
@@ -81,53 +171,26 @@ namespace Manager
 
         }
 
-        private void OnGetQuote()
+        private void Proccess_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            const int bufferSize = 1024;
+            this.Invoke((MethodInvoker)(() => lbComps.Items.Clear()));
 
-            string serverName = Properties.Settings.Default.ServerName;
-            int port = Properties.Settings.Default.PortNumber;
-
-            TcpClient client = new TcpClient();
-            NetworkStream stream = null;
-            try
+            foreach (var item in Proccess)
             {
-                client.Connect(serverName, port);
-                stream = client.GetStream();
-                byte[] buffer = new Byte[bufferSize];
-                int received = stream.Read(buffer, 0, bufferSize);
-                if (received <= 0)
-                {
-                    return;
-                }
-                var textQuote = Encoding.Unicode.GetString(buffer).Trim('\0');
+                this.Invoke((MethodInvoker)(() => lbComps.Items.Add(item.IPAdress)));
             }
-            catch (SocketException ex)
-            {
-                MessageBox.Show(ex.Message, "Ошибка при выдаче цитаты");
-            }
-            finally
-            {
-                if (stream != null)
-                {
-                    stream.Close();
-                }
-
-                if (client.Connected)
-                {
-                    client.Close();
-                }
-            }
-
         }
 
         private void OnSetQuote(string ServerName,int Port, Packet Pak)
         {
             string serverName = ServerName;
+
             int port = Port;
 
             TcpClient client = new TcpClient();
+
             NetworkStream stream = null;
+
             try
             {
                 client.Connect(serverName, port);
@@ -185,22 +248,59 @@ namespace Manager
         private void button1_Click(object sender, EventArgs e)
         {
 
-            //IPEndPoint point = new IPEndPoint(IPAddress.Parse(lbComps.SelectedItem.ToString()), 4567);
             Packet pak = new Packet
             {
                 CardType = cbCard.SelectedItem.ToString(),
                 CVV = chbCVV.Checked,
                 MSOffice = cbOffice.Checked,
-                Rar = cbRar.Checked
+                Rar = cbRar.Checked,
+                Directory = tbDirectory.Text,
+                IPAdress = "127.0.0.1"
             };
 
-            OnSetQuote(lbComps.SelectedItem.ToString(),4567, pak);
-            
+            //OnSetQuote(lbComps.SelectedItem.ToString(),4567, pak);
+            Proccess.Add(pak);
+            Proccess.Add(pak);
+            Proccess.Add(pak);
+            Proccess.Add(pak);
+            Proccess.Add(pak);
+
+            lvProccess.Items.Clear();
+
+            foreach (var item in Proccess)
+            {
+                ListViewItem items = new ListViewItem();
+                items.Text = item.IPAdress;
+                items.SubItems.Add(item.CardType);
+                items.SubItems.Add(Convert.ToString(item.CVV));
+                items.SubItems.Add(Convert.ToString(item.MSOffice));
+                items.SubItems.Add(Convert.ToString(item.Rar));
+                items.SubItems.Add(item.Directory);
+                items.SubItems.Add("Progress");
+
+                this.Invoke((MethodInvoker)(() => lvProccess.Items.Add(items)));
+
+                ProgressBar pb = new ProgressBar();
+
+                Rectangle r = items.SubItems[6].Bounds;
+
+                pb.SetBounds(r.X, r.Y, r.Width, r.Height);
+                pb.Minimum = 0;
+                pb.Maximum = 100;
+                pb.Value = Convert.ToInt32(item.CurrentFile);
+                pb.Name = "Progress";                   // use the key as the name
+
+                this.Invoke((MethodInvoker)(() => lvProccess.Controls.Add(pb)));
+            }
+
+
         }
 
         private void Start_Click(object sender, EventArgs e)
         {
             StartWork();
+
+            UpdateProgress();
         }
     }
 }
