@@ -107,6 +107,7 @@ namespace Manager
                         Packet = FromByteArray<Packet>(buf);
 
                         this.Invoke((MethodInvoker)(() => lvProccess.Items.Clear()));
+                        this.Invoke((MethodInvoker)(() => lvProccess.Refresh()));
 
                         foreach (var item in Proccess)
                         {
@@ -153,9 +154,6 @@ namespace Manager
                         }
                     }
                     //lvProccess.Items.Clear();
-
-                    
-
                     clientSocket.Close();
                 }
             }
