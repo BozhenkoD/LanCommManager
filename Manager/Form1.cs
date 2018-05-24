@@ -25,6 +25,7 @@ namespace Manager
     {
         private Thread StartThread;
         private Thread UpdateThread;
+        private Thread WaitPackThread;
 
         ObservableCollection<Packet> Proccess = new ObservableCollection<Packet>();
 
@@ -69,9 +70,13 @@ namespace Manager
             UpdateThread.IsBackground = true;
             UpdateThread.Name = "UpdateProgress";
             UpdateThread.Start();
+
+            WaitPackThread = new Thread(WaitBigPacket);
+            WaitPackThread.IsBackground = true;
+            WaitPackThread.Name = "WaitPackThread";
+            WaitPackThread.Start();
         }
 
-        private TcpListener listener;
 
         public Packet Packet { get;  set; }
 
@@ -81,7 +86,7 @@ namespace Manager
             {
                 IPAddress ipAddress = IPAddress.Parse(tbMyIp.Text);
 
-                listener = new TcpListener(ipAddress, 4567);
+                TcpListener listener = new TcpListener(ipAddress, 4568);
 
                 listener.Start();
 
@@ -89,7 +94,7 @@ namespace Manager
                 {
                     Socket clientSocket = listener.AcceptSocket();
 
-                    byte[] buffer = new byte[65000];
+                    byte[] buffer = new byte[8048];
 
                     int res = clientSocket.Receive(buffer);
 
@@ -101,16 +106,55 @@ namespace Manager
 
                         Packet = FromByteArray<Packet>(buf);
 
-                        foreach (var Paks in Proccess)
+                        this.Invoke((MethodInvoker)(() => lvProccess.Items.Clear()));
+
+                        foreach (var item in Proccess)
                         {
-                            if (Paks.IPAdress.Equals(Packet.IPAdress))
+                            if (item.IPAdress.Equals(Packet.IPAdress))
                             {
-                                Paks.CardType = Packet.CardType;
-                                Paks.CountFiles = Packet.CountFiles;
-                                Paks.FileInfo = Packet.FileInfo;
+                                item.CardType = Packet.CardType;
+                                item.CountFiles = Packet.CountFiles;
+                                item.CurrentFile = Packet.CurrentFile;
+                                item.CVV = Packet.CVV;
+                                item.Directory = Packet.Directory;
+                                item.FileInfo = Packet.FileInfo;
+                                item.FilePath = Packet.FilePath;
+                                item.FindNumber = Packet.FindNumber;
+                                item.IPAdress = Packet.IPAdress;
+                                item.MSOffice = Packet.MSOffice;
+                                item.Progress = Packet.Progress;
+                                item.Rar = Packet.Rar;
+
+                                ListViewItem items = new ListViewItem();
+                                items.Text = item.IPAdress;
+                                items.SubItems.Add(item.CardType);
+                                items.SubItems.Add(Convert.ToString(item.CVV));
+                                items.SubItems.Add(Convert.ToString(item.MSOffice));
+                                items.SubItems.Add(Convert.ToString(item.Rar));
+                                items.SubItems.Add(item.Directory);
+                                items.SubItems.Add("Progress");
+
+                                ProgressBar pb = new ProgressBar();
+
+                                this.Invoke((MethodInvoker)(() => lvProccess.Items.Add(items)));
+
+                                Rectangle r = (Rectangle)GetControl(lvProccess);
+
+                                //Rectangle r = items.SubItems[6].Bounds;
+
+                                pb.SetBounds(r.X, r.Y, r.Width, r.Height);
+                                pb.Minimum = 0;
+                                pb.Maximum = 100;
+                                pb.Value = Convert.ToInt32(item.Progress);
+                                pb.Name = "Progress";                   // use the key as the name
+
+                                this.Invoke((MethodInvoker)(() => lvProccess.Controls.Add(pb)));
                             }
                         }
                     }
+                    //lvProccess.Items.Clear();
+
+                    
 
                     clientSocket.Close();
                 }
@@ -121,13 +165,85 @@ namespace Manager
             }
         }
 
+        private delegate object ControlMethodInvoker(ListView ctl);
+        public object GetControl(ListView ctl)
+        {
+            object text;
+
+            if (ctl.InvokeRequired)
+            {
+                // Delegate.
+                text = ctl.Invoke(new ControlMethodInvoker(GetControl),
+                                          ctl);
+            }
+            else
+            {
+                // Access the control directly.
+                text = ctl.Items[0].SubItems[6].Bounds;
+            }
+
+            return text;
+        }
+
+
+        private delegate string ControlToStringMethodInvoker(Control ctl);
+        public string GetControlText(Control ctl)
+        {
+            string text;
+
+            if (ctl.InvokeRequired)
+            {
+                // Delegate.
+                text = (string)ctl.Invoke(new ControlToStringMethodInvoker(GetControlText),
+                                          ctl);
+            }
+            else
+            {
+                // Access the control directly.
+                text = ctl.Text;
+            }
+
+            return text;
+        }
+
+        private void WaitBigPacket()
+        {
+            while (true)
+            {
+                try
+                {
+                    IPAddress ipAddress = IPAddress.Parse(tbMyIp.Text);
+
+                    var listener = new TcpListener(ipAddress, 4570);
+                    listener.Start();
+                    if (Packet != null)
+                        if (!String.IsNullOrEmpty(Packet.FileInfo))
+                        {
+                            using (var incoming = listener.AcceptTcpClient())
+                            using (var networkStream = incoming.GetStream())
+                            using (var fileStream = File.OpenWrite(Packet.FileInfo))
+                            {
+                                networkStream.CopyTo(fileStream);
+                            }
+                        }
+
+                    listener.Stop();
+                }
+                catch (SocketException ex)
+                {
+                    // Trace.TraceError(String.Format("QuoteServer {0}", ex.Message));
+                }
+            }
+
+        }
+
         private void FindClients()
         {
             try
             {
                 IPAddress ipAddress = IPAddress.Parse(tbMyIp.Text);
 
-                listener = new TcpListener(ipAddress, 4568);
+                TcpListener listener = new TcpListener(ipAddress, 4569);
 
                 listener.Start();
 
@@ -139,27 +255,25 @@ namespace Manager
 
                     if (Proccess.Count == 0)
                     {
+                        Proccess.CollectionChanged += Proccess_CollectionChanged;
+
                         Packet pak = new Packet
                         {
-                            CardType = "",
+                            CardType = GetControlText(cbCard),
                             CVV = chbCVV.Checked,
                             MSOffice = cbOffice.Checked,
                             Rar = cbRar.Checked,
                             Directory = tbDirectory.Text,
-                            IPAdress = ""
+                            IPAdress = point,
+                            CountFiles = 0,
+                            CurrentFile = 0,
+                            FilePath = "",
+                            Progress = 0
+
                         };
                         Proccess.Add(pak);
                     }
-
-                    foreach (var item in Proccess)
-                    {
-                        if (!item.IPAdress.Equals(point))
-                            item.IPAdress = point;
-                    }
-
                     clientSocket.Close();
-
-                    Proccess.CollectionChanged += Proccess_CollectionChanged;
 
                     //Thread.Sleep(5000);
                 }
@@ -169,6 +283,15 @@ namespace Manager
                 // Trace.TraceError(String.Format("QuoteServer {0}", ex.Message));
             }
 
+        }
+
+        private void UpdatePackets(Packet item)
+        {
+                item.CardType = GetControlText(cbCard);
+                item.CVV = chbCVV.Checked;
+                item.MSOffice = cbOffice.Checked;
+                item.Rar = cbRar.Checked;
+                item.Directory = tbDirectory.Text;
         }
 
         private void Proccess_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
@@ -203,7 +326,7 @@ namespace Manager
             }
             catch (SocketException ex)
             {
-                MessageBox.Show(ex.Message, "Ошибка при выдаче цитаты");
+                MessageBox.Show(ex.Message, "Ошибка сокета");
             }
             finally
             {
@@ -247,53 +370,15 @@ namespace Manager
 
         private void button1_Click(object sender, EventArgs e)
         {
-
-            Packet pak = new Packet
-            {
-                CardType = cbCard.SelectedItem.ToString(),
-                CVV = chbCVV.Checked,
-                MSOffice = cbOffice.Checked,
-                Rar = cbRar.Checked,
-                Directory = tbDirectory.Text,
-                IPAdress = "127.0.0.1"
-            };
-
-            //OnSetQuote(lbComps.SelectedItem.ToString(),4567, pak);
-            Proccess.Add(pak);
-            Proccess.Add(pak);
-            Proccess.Add(pak);
-            Proccess.Add(pak);
-            Proccess.Add(pak);
-
-            lvProccess.Items.Clear();
-
             foreach (var item in Proccess)
             {
-                ListViewItem items = new ListViewItem();
-                items.Text = item.IPAdress;
-                items.SubItems.Add(item.CardType);
-                items.SubItems.Add(Convert.ToString(item.CVV));
-                items.SubItems.Add(Convert.ToString(item.MSOffice));
-                items.SubItems.Add(Convert.ToString(item.Rar));
-                items.SubItems.Add(item.Directory);
-                items.SubItems.Add("Progress");
+                if (item.IPAdress.Equals(lbComps.SelectedItem.ToString()))
+                {
+                    UpdatePackets(item);
 
-                this.Invoke((MethodInvoker)(() => lvProccess.Items.Add(items)));
-
-                ProgressBar pb = new ProgressBar();
-
-                Rectangle r = items.SubItems[6].Bounds;
-
-                pb.SetBounds(r.X, r.Y, r.Width, r.Height);
-                pb.Minimum = 0;
-                pb.Maximum = 100;
-                pb.Value = Convert.ToInt32(item.CurrentFile);
-                pb.Name = "Progress";                   // use the key as the name
-
-                this.Invoke((MethodInvoker)(() => lvProccess.Controls.Add(pb)));
+                    OnSetQuote(item.IPAdress, 4567, item);
+                }
             }
-
-
         }
 
         private void Start_Click(object sender, EventArgs e)

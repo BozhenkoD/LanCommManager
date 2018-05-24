@@ -36,6 +36,13 @@
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.lvProccess = new System.Windows.Forms.ListView();
+            this.IP = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.CardType = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.CVV = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.Office = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.Rar = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.Path = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.Progress = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.groupBoxFileTypes = new System.Windows.Forms.GroupBox();
             this.button1 = new System.Windows.Forms.Button();
             this.cbRar = new System.Windows.Forms.CheckBox();
@@ -45,13 +52,6 @@
             this.tbMyIp = new System.Windows.Forms.TextBox();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
             this.tbDirectory = new System.Windows.Forms.TextBox();
-            this.IP = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.CardType = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.CVV = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.Office = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.Rar = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.Path = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.Progress = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.groupBox1.SuspendLayout();
             this.panelcard.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -83,6 +83,7 @@
             // 
             // cbCard
             // 
+            this.cbCard.DisplayMember = "Visa";
             this.cbCard.FormattingEnabled = true;
             this.cbCard.Items.AddRange(new object[] {
             "Visa",
@@ -91,6 +92,7 @@
             this.cbCard.Name = "cbCard";
             this.cbCard.Size = new System.Drawing.Size(160, 21);
             this.cbCard.TabIndex = 9;
+            this.cbCard.ValueMember = "Visa";
             // 
             // panelcard
             // 
@@ -152,6 +154,39 @@
             this.lvProccess.TabIndex = 0;
             this.lvProccess.UseCompatibleStateImageBehavior = false;
             this.lvProccess.View = System.Windows.Forms.View.Details;
+            // 
+            // IP
+            // 
+            this.IP.Text = "IP";
+            this.IP.Width = 90;
+            // 
+            // CardType
+            // 
+            this.CardType.Text = "Тип карты";
+            this.CardType.Width = 65;
+            // 
+            // CVV
+            // 
+            this.CVV.Text = "CVV";
+            // 
+            // Office
+            // 
+            this.Office.Text = "Office";
+            // 
+            // Rar
+            // 
+            this.Rar.Text = "Rar";
+            // 
+            // Path
+            // 
+            this.Path.Text = "Path";
+            this.Path.Width = 160;
+            // 
+            // Progress
+            // 
+            this.Progress.Tag = "";
+            this.Progress.Text = "Progress";
+            this.Progress.Width = 80;
             // 
             // groupBoxFileTypes
             // 
@@ -244,38 +279,6 @@
             this.tbDirectory.TabIndex = 0;
             this.tbDirectory.Text = "C:\\";
             // 
-            // IP
-            // 
-            this.IP.Text = "IP";
-            this.IP.Width = 90;
-            // 
-            // CardType
-            // 
-            this.CardType.Text = "Тип карты";
-            this.CardType.Width = 65;
-            // 
-            // CVV
-            // 
-            this.CVV.Text = "CVV";
-            // 
-            // Office
-            // 
-            this.Office.Text = "Office";
-            // 
-            // Rar
-            // 
-            this.Rar.Text = "Rar";
-            // 
-            // Path
-            // 
-            this.Path.Text = "Path";
-            this.Path.Width = 160;
-            // 
-            // Progress
-            // 
-            this.Progress.Text = "Progress";
-            this.Progress.Width = 80;
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -306,7 +309,6 @@
 
         #endregion
         private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.ComboBox cbCard;
         private System.Windows.Forms.Panel panelcard;
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.CheckBox chbCVV;
@@ -329,6 +331,7 @@
         private System.Windows.Forms.ColumnHeader Rar;
         private System.Windows.Forms.ColumnHeader Path;
         private System.Windows.Forms.ColumnHeader Progress;
+        public System.Windows.Forms.ComboBox cbCard;
     }
 }
 
