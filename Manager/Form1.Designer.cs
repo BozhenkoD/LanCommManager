@@ -45,7 +45,6 @@
             this.Progress = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.groupBoxFileTypes = new System.Windows.Forms.GroupBox();
             this.button1 = new System.Windows.Forms.Button();
-            this.cbRar = new System.Windows.Forms.CheckBox();
             this.cbOffice = new System.Windows.Forms.CheckBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.Start = new System.Windows.Forms.Button();
@@ -191,7 +190,6 @@
             // groupBoxFileTypes
             // 
             this.groupBoxFileTypes.Controls.Add(this.button1);
-            this.groupBoxFileTypes.Controls.Add(this.cbRar);
             this.groupBoxFileTypes.Controls.Add(this.cbOffice);
             this.groupBoxFileTypes.Font = new System.Drawing.Font("Calibri", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.groupBoxFileTypes.Location = new System.Drawing.Point(311, 51);
@@ -203,7 +201,7 @@
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(213, 20);
+            this.button1.Location = new System.Drawing.Point(199, 19);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(75, 23);
             this.button1.TabIndex = 2;
@@ -211,24 +209,14 @@
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
-            // cbRar
-            // 
-            this.cbRar.AutoSize = true;
-            this.cbRar.Location = new System.Drawing.Point(110, 22);
-            this.cbRar.Name = "cbRar";
-            this.cbRar.Size = new System.Drawing.Size(87, 18);
-            this.cbRar.TabIndex = 1;
-            this.cbRar.Text = "*.rar | *.zip";
-            this.cbRar.UseVisualStyleBackColor = true;
-            // 
             // cbOffice
             // 
             this.cbOffice.AutoSize = true;
-            this.cbOffice.Location = new System.Drawing.Point(7, 22);
+            this.cbOffice.Location = new System.Drawing.Point(23, 22);
             this.cbOffice.Name = "cbOffice";
-            this.cbOffice.Size = new System.Drawing.Size(75, 18);
+            this.cbOffice.Size = new System.Drawing.Size(142, 18);
             this.cbOffice.TabIndex = 0;
-            this.cbOffice.Text = "MS Office";
+            this.cbOffice.Text = "MS Office Word, Excel.";
             this.cbOffice.UseVisualStyleBackColor = true;
             // 
             // groupBox2
@@ -292,6 +280,7 @@
             this.Controls.Add(this.groupBox1);
             this.Name = "Form1";
             this.Text = "Form1";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.groupBox1.ResumeLayout(false);
             this.panelcard.ResumeLayout(false);
             this.panelcard.PerformLayout();
@@ -315,7 +304,6 @@
         private System.Windows.Forms.GroupBox groupBox4;
         private System.Windows.Forms.ListView lvProccess;
         private System.Windows.Forms.GroupBox groupBoxFileTypes;
-        private System.Windows.Forms.CheckBox cbRar;
         private System.Windows.Forms.CheckBox cbOffice;
         private System.Windows.Forms.Button button1;
         public System.Windows.Forms.ListBox lbComps;
