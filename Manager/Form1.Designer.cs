@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            Aga.Controls.Tree.TreeColumn treeColumn1 = new Aga.Controls.Tree.TreeColumn();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.lbComps = new System.Windows.Forms.ListBox();
             this.cbCard = new System.Windows.Forms.ComboBox();
@@ -50,7 +51,9 @@
             this.Start = new System.Windows.Forms.Button();
             this.tbMyIp = new System.Windows.Forms.TextBox();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
-            this.tbDirectory = new System.Windows.Forms.TextBox();
+            this.trvDirectory = new Aga.Controls.Tree.TreeViewAdv();
+            this._nodeStateIcon = new Aga.Controls.Tree.NodeControls.NodeStateIcon();
+            this._nodeTextBox = new Aga.Controls.Tree.NodeControls.NodeTextBox();
             this.groupBox1.SuspendLayout();
             this.panelcard.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -63,22 +66,24 @@
             // groupBox1
             // 
             this.groupBox1.Controls.Add(this.lbComps);
-            this.groupBox1.Location = new System.Drawing.Point(10, 1);
+            this.groupBox1.Location = new System.Drawing.Point(14, 1);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(295, 201);
+            this.groupBox1.Size = new System.Drawing.Size(140, 313);
             this.groupBox1.TabIndex = 3;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Клиенты";
             // 
             // lbComps
             // 
+            this.lbComps.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lbComps.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.lbComps.FormattingEnabled = true;
             this.lbComps.ItemHeight = 17;
-            this.lbComps.Location = new System.Drawing.Point(6, 19);
+            this.lbComps.Location = new System.Drawing.Point(3, 16);
             this.lbComps.Name = "lbComps";
-            this.lbComps.Size = new System.Drawing.Size(283, 174);
+            this.lbComps.Size = new System.Drawing.Size(134, 294);
             this.lbComps.TabIndex = 0;
+            this.lbComps.SelectedIndexChanged += new System.EventHandler(this.lbComps_SelectedIndexChanged);
             // 
             // cbCard
             // 
@@ -250,22 +255,37 @@
             // 
             // groupBox5
             // 
-            this.groupBox5.Controls.Add(this.tbDirectory);
-            this.groupBox5.Location = new System.Drawing.Point(10, 208);
+            this.groupBox5.Controls.Add(this.trvDirectory);
+            this.groupBox5.Location = new System.Drawing.Point(153, 1);
             this.groupBox5.Name = "groupBox5";
-            this.groupBox5.Size = new System.Drawing.Size(295, 106);
+            this.groupBox5.Size = new System.Drawing.Size(152, 313);
             this.groupBox5.TabIndex = 16;
             this.groupBox5.TabStop = false;
             this.groupBox5.Text = "Директория";
             // 
-            // tbDirectory
+            // trvDirectory
             // 
-            this.tbDirectory.Location = new System.Drawing.Point(6, 29);
-            this.tbDirectory.Multiline = true;
-            this.tbDirectory.Name = "tbDirectory";
-            this.tbDirectory.Size = new System.Drawing.Size(283, 71);
-            this.tbDirectory.TabIndex = 0;
-            this.tbDirectory.Text = "C:\\";
+            this.trvDirectory.BackColor = System.Drawing.SystemColors.Window;
+            treeColumn1.Header = "Name";
+            this.trvDirectory.Columns.Add(treeColumn1);
+            this.trvDirectory.Cursor = System.Windows.Forms.Cursors.Default;
+            this.trvDirectory.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.trvDirectory.DragDropMarkColor = System.Drawing.Color.Black;
+            this.trvDirectory.LineColor = System.Drawing.SystemColors.ControlDark;
+            this.trvDirectory.Location = new System.Drawing.Point(3, 16);
+            this.trvDirectory.Model = null;
+            this.trvDirectory.Name = "trvDirectory";
+            this.trvDirectory.NodeControls.Add(this._nodeStateIcon);
+            this.trvDirectory.NodeControls.Add(this._nodeTextBox);
+            this.trvDirectory.SelectedNode = null;
+            this.trvDirectory.SelectionMode = Aga.Controls.Tree.TreeSelectionMode.MultiSameParent;
+            this.trvDirectory.Size = new System.Drawing.Size(146, 294);
+            this.trvDirectory.TabIndex = 0;
+            this.trvDirectory.Text = "treeViewAdv1";
+            // 
+            // _nodeTextBox
+            // 
+            this._nodeTextBox.DataPropertyName = "Text";
             // 
             // Form1
             // 
@@ -291,12 +311,14 @@
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
             this.groupBox5.ResumeLayout(false);
-            this.groupBox5.PerformLayout();
             this.ResumeLayout(false);
 
         }
 
         #endregion
+        private Aga.Controls.Tree.NodeControls.NodeStateIcon _nodeStateIcon;
+        private Aga.Controls.Tree.NodeControls.NodeTextBox _nodeTextBox;
+
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Panel panelcard;
         private System.Windows.Forms.GroupBox groupBox3;
@@ -311,7 +333,6 @@
         private System.Windows.Forms.Button Start;
         private System.Windows.Forms.TextBox tbMyIp;
         private System.Windows.Forms.GroupBox groupBox5;
-        private System.Windows.Forms.TextBox tbDirectory;
         public System.Windows.Forms.ColumnHeader IP;
         private System.Windows.Forms.ColumnHeader CardType;
         private System.Windows.Forms.ColumnHeader CVV;
@@ -320,6 +341,7 @@
         private System.Windows.Forms.ColumnHeader Path;
         private System.Windows.Forms.ColumnHeader Progress;
         public System.Windows.Forms.ComboBox cbCard;
+        private Aga.Controls.Tree.TreeViewAdv trvDirectory;
     }
 }
 
