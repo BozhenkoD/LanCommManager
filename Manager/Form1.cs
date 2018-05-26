@@ -295,7 +295,7 @@ namespace Manager
                     }
                     clientSocket.Close();
 
-                    //Thread.Sleep(5000);
+                   
                 }
             }
             catch (SocketException ex)
