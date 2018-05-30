@@ -126,9 +126,6 @@ namespace Manager
 
                         Packets = FromByteArray<Packet>(buf);
 
-                        //this.Invoke((MethodInvoker)(() => lvProccess.Items.Clear()));
-
-
                         var t = (from a in Proccess
                                  where a.IPAdress == Packets.IPAdress
                                  select a).FirstOrDefault();
@@ -140,8 +137,6 @@ namespace Manager
                         {
                             if (lvProccess.Items.Count == 0)
                             {
-                                //Proccess.Remove(t);
-
                                 t.Progress = Packets.Progress;
                                 t.CardType = Packets.CardType;
                                 t.CountFiles = Packets.CountFiles;
@@ -164,7 +159,6 @@ namespace Manager
                             }
                         }
                     }
-                    //lvProccess.Items.Clear();
                     clientSocket.Close();
                 }
             }
