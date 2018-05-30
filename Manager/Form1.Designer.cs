@@ -28,7 +28,8 @@
         /// </summary>
         private void InitializeComponent()
         {
-            Aga.Controls.Tree.TreeColumn treeColumn1 = new Aga.Controls.Tree.TreeColumn();
+            this.components = new System.ComponentModel.Container();
+            Aga.Controls.Tree.TreeColumn treeColumn2 = new Aga.Controls.Tree.TreeColumn();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.lbComps = new System.Windows.Forms.ListBox();
             this.cbCard = new System.Windows.Forms.ComboBox();
@@ -54,6 +55,7 @@
             this.trvDirectory = new Aga.Controls.Tree.TreeViewAdv();
             this._nodeStateIcon = new Aga.Controls.Tree.NodeControls.NodeStateIcon();
             this._nodeTextBox = new Aga.Controls.Tree.NodeControls.NodeTextBox();
+            this.packetBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.groupBox1.SuspendLayout();
             this.panelcard.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -61,6 +63,7 @@
             this.groupBoxFileTypes.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox5.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.packetBindingSource)).BeginInit();
             this.SuspendLayout();
             // 
             // groupBox1
@@ -68,7 +71,7 @@
             this.groupBox1.Controls.Add(this.lbComps);
             this.groupBox1.Location = new System.Drawing.Point(14, 1);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(140, 313);
+            this.groupBox1.Size = new System.Drawing.Size(264, 313);
             this.groupBox1.TabIndex = 3;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Клиенты";
@@ -81,7 +84,7 @@
             this.lbComps.ItemHeight = 17;
             this.lbComps.Location = new System.Drawing.Point(3, 16);
             this.lbComps.Name = "lbComps";
-            this.lbComps.Size = new System.Drawing.Size(134, 294);
+            this.lbComps.Size = new System.Drawing.Size(258, 294);
             this.lbComps.TabIndex = 0;
             this.lbComps.SelectedIndexChanged += new System.EventHandler(this.lbComps_SelectedIndexChanged);
             // 
@@ -123,7 +126,7 @@
             // groupBox3
             // 
             this.groupBox3.Controls.Add(this.panelcard);
-            this.groupBox3.Location = new System.Drawing.Point(313, 111);
+            this.groupBox3.Location = new System.Drawing.Point(1083, 122);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Size = new System.Drawing.Size(298, 203);
             this.groupBox3.TabIndex = 11;
@@ -135,7 +138,7 @@
             this.groupBox4.Controls.Add(this.lvProccess);
             this.groupBox4.Location = new System.Drawing.Point(11, 320);
             this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(600, 299);
+            this.groupBox4.Size = new System.Drawing.Size(1380, 431);
             this.groupBox4.TabIndex = 12;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Процес оброботки";
@@ -150,11 +153,12 @@
             this.Rar,
             this.Path,
             this.Progress});
+            this.lvProccess.DataBindings.Add(new System.Windows.Forms.Binding("Tag", this.packetBindingSource, "IPAdress", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
             this.lvProccess.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lvProccess.FullRowSelect = true;
             this.lvProccess.Location = new System.Drawing.Point(3, 16);
             this.lvProccess.Name = "lvProccess";
-            this.lvProccess.Size = new System.Drawing.Size(594, 280);
+            this.lvProccess.Size = new System.Drawing.Size(1374, 412);
             this.lvProccess.TabIndex = 0;
             this.lvProccess.UseCompatibleStateImageBehavior = false;
             this.lvProccess.View = System.Windows.Forms.View.Details;
@@ -197,7 +201,7 @@
             this.groupBoxFileTypes.Controls.Add(this.button1);
             this.groupBoxFileTypes.Controls.Add(this.cbOffice);
             this.groupBoxFileTypes.Font = new System.Drawing.Font("Calibri", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.groupBoxFileTypes.Location = new System.Drawing.Point(311, 51);
+            this.groupBoxFileTypes.Location = new System.Drawing.Point(1081, 62);
             this.groupBoxFileTypes.Name = "groupBoxFileTypes";
             this.groupBoxFileTypes.Size = new System.Drawing.Size(298, 54);
             this.groupBoxFileTypes.TabIndex = 14;
@@ -228,7 +232,7 @@
             // 
             this.groupBox2.Controls.Add(this.Start);
             this.groupBox2.Controls.Add(this.tbMyIp);
-            this.groupBox2.Location = new System.Drawing.Point(311, 1);
+            this.groupBox2.Location = new System.Drawing.Point(1081, 12);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(300, 44);
             this.groupBox2.TabIndex = 15;
@@ -256,9 +260,9 @@
             // groupBox5
             // 
             this.groupBox5.Controls.Add(this.trvDirectory);
-            this.groupBox5.Location = new System.Drawing.Point(153, 1);
+            this.groupBox5.Location = new System.Drawing.Point(284, 1);
             this.groupBox5.Name = "groupBox5";
-            this.groupBox5.Size = new System.Drawing.Size(152, 313);
+            this.groupBox5.Size = new System.Drawing.Size(791, 313);
             this.groupBox5.TabIndex = 16;
             this.groupBox5.TabStop = false;
             this.groupBox5.Text = "Директория";
@@ -266,8 +270,8 @@
             // trvDirectory
             // 
             this.trvDirectory.BackColor = System.Drawing.SystemColors.Window;
-            treeColumn1.Header = "Name";
-            this.trvDirectory.Columns.Add(treeColumn1);
+            treeColumn2.Header = "Name";
+            this.trvDirectory.Columns.Add(treeColumn2);
             this.trvDirectory.Cursor = System.Windows.Forms.Cursors.Default;
             this.trvDirectory.Dock = System.Windows.Forms.DockStyle.Fill;
             this.trvDirectory.DragDropMarkColor = System.Drawing.Color.Black;
@@ -279,7 +283,7 @@
             this.trvDirectory.NodeControls.Add(this._nodeTextBox);
             this.trvDirectory.SelectedNode = null;
             this.trvDirectory.SelectionMode = Aga.Controls.Tree.TreeSelectionMode.MultiSameParent;
-            this.trvDirectory.Size = new System.Drawing.Size(146, 294);
+            this.trvDirectory.Size = new System.Drawing.Size(785, 294);
             this.trvDirectory.TabIndex = 0;
             this.trvDirectory.Text = "treeViewAdv1";
             // 
@@ -287,19 +291,25 @@
             // 
             this._nodeTextBox.DataPropertyName = "Text";
             // 
+            // packetBindingSource
+            // 
+            this.packetBindingSource.DataSource = typeof(Protocols.Packet);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(621, 624);
+            this.ClientSize = new System.Drawing.Size(1393, 754);
             this.Controls.Add(this.groupBox5);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBoxFileTypes);
             this.Controls.Add(this.groupBox4);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox1);
+            this.MaximumSize = new System.Drawing.Size(1409, 793);
+            this.MinimumSize = new System.Drawing.Size(1409, 793);
             this.Name = "Form1";
-            this.Text = "Form1";
+            this.Text = "Manager";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.groupBox1.ResumeLayout(false);
             this.panelcard.ResumeLayout(false);
@@ -311,6 +321,7 @@
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
             this.groupBox5.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.packetBindingSource)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -342,6 +353,7 @@
         private System.Windows.Forms.ColumnHeader Progress;
         public System.Windows.Forms.ComboBox cbCard;
         private Aga.Controls.Tree.TreeViewAdv trvDirectory;
+        private System.Windows.Forms.BindingSource packetBindingSource;
     }
 }
 

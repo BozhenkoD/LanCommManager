@@ -48,10 +48,11 @@
   <ItemGroup>
     <Reference Include="Aga.Controls, Version=1.0.0.0, Culture=neutral, PublicKeyToken=fcc90fbf924463a3, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\QuoteServer\Aga.Controls\bin\Debug\Aga.Controls.dll</HintPath>
+      <HintPath>..\..\LanComnService\Aga.Controls\bin\Debug\Aga.Controls.dll</HintPath>
     </Reference>
-    <Reference Include="Protocols">
-      <HintPath>..\..\QuoteServer\Protocols\bin\Debug\Protocols.dll</HintPath>
+    <Reference Include="Protocols, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\LanComnService\Protocols\bin\Debug\Protocols.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -87,6 +88,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <None Include="Properties\DataSources\Client.datasource" />
+    <None Include="Properties\DataSources\Protocols.Packet.datasource" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
